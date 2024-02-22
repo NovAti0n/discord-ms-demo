@@ -4,12 +4,18 @@ import express from "express";
 import config from "./config.js";
 import * as discord from "./discord.js";
 import * as microsoft from "./microsoft.js";
+import * as mongo from "./db-methods.js";
 
 const app = express();
 app.use(cookieParser(config.COOKIE_SECRET)); // Used for signing cookies
 
+const client = mongo.connect(config.MONGO_URI);
+await client.connect();
+
+console.log("Connected to MongoDB");
+
 app.get("/", (_, res) => {
-	res.send("Hello World!");
+	res.sendFile("index.html", { root: "./public" });
 });
 
 app.get("/verify", async (_, res) => {
@@ -38,6 +44,7 @@ app.get("/discord-callback", async (req, res) => {
 		console.log(`Discord user ID is ${userData.user.id}`);
 
 		res.cookie("clientState", state, { maxAge: 1000 * 60 * 10, signed: true });
+		res.cookie("discordUserID", userData.user.id, { maxAge: 1000 * 60 * 10, signed: true });
 		res.redirect(url);
 	} catch (err) {
 		console.error(err);
@@ -49,7 +56,7 @@ app.get("/microsoft-callback", async (req, res) => {
 	try {
 		const code = req.query.code;
 		const microsoftState = req.query.state;
-		const { clientState } = req.signedCookies;
+		const { clientState, discordUserID } = req.signedCookies;
 
 		if (clientState != microsoftState) {
 			console.error("States don't match, aborting...");
@@ -62,7 +69,17 @@ app.get("/microsoft-callback", async (req, res) => {
 
 		console.log(`Microsoft user ID is ${userData.sub}`);
 
-		res.send("Success");
+		if (await mongo.isAlreadyRegistered(client, discordUserID, userData.sub)) {
+			return res.send("You already have an account linked!");
+		}
+
+		await mongo.addUser(client, discordUserID, userData.sub);
+
+		// Clear all cookies
+		res.clearCookie("clientState");
+		res.clearCookie("discordUserID");
+
+		res.send("Success! You can close this tab now.");
 	} catch (err) {
 		console.error(err);
 		res.sendStatus(500);

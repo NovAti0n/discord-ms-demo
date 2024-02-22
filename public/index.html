@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Discord/MS OAuth demo</title>
+	</head>
+	<body>
+		<div
+			style="
+				border: 1px solid #ff9800;
+				background-color: #ffcccc;
+				padding: 10px;
+				border-radius: 5px;
+				margin-bottom: 20px;
+			"
+		>
+			<p style="color: #ff0000; font-weight: bold">Warning:</p>
+			<p>
+				After clicking the button below, you'll be redirected to Discord's website to login to your Discord
+				account. You'll be then immediately redirected to Microsoft's website to login using your school's
+				credentials. We only collect a user ID from both websites in order to verify your identity. We do not
+				store any other information.<br /><br />It should be noted that Microsoft's API also provides your
+				email, full name and profile picture. Regardless, we do not store any name or email. Please also note
+				that Microsoft's user ID could be used to identify you. Only the SGSI staff could have access to this
+				information, not us or academic members such as professors or teaching assistants<br /><br />If you
+				don't believe us (and you shouldn't, like any stranger on the internet), you can take a look at this
+				website's source code by clicking
+				<a href="https://github.com/NovAti0n/discord-ms-demo" target="_blank">here</a>.
+			</p>
+		</div>
+		<div>
+			<input type="checkbox" id="agreeCheckbox" />
+			<label for="agreeCheckbox">I agree to these terms <span style="color: red">*</span></label>
+		</div>
+		<a
+			href="/verify"
+			style="
+				display: inline-block;
+				padding: 10px 20px;
+				font-size: 20px;
+				background-color: #4caf50;
+				color: white;
+				text-decoration: none;
+				border-radius: 5px;
+				pointer-events: none;
+				opacity: 0.5;
+			"
+			id="verifyButton"
+		>
+			Click here to verify
+		</a>
+		<script>
+			const agreeCheckbox = document.getElementById("agreeCheckbox");
+			const verifyButton = document.getElementById("verifyButton");
+
+			agreeCheckbox.addEventListener("change", function () {
+				if (agreeCheckbox.checked) {
+					verifyButton.style.pointerEvents = "auto";
+					verifyButton.style.opacity = "1";
+				} else {
+					verifyButton.style.pointerEvents = "none";
+					verifyButton.style.opacity = "0.5";
+				}
+			});
+		</script>
+	</body>
+</html>
