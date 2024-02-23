@@ -45,12 +45,16 @@ const changeStream = mongoClient.db("auth").collection("auth").watch();
 changeStream.on("change", async change => {
 	if (change.operationType !== "insert") return;
 
-	const userId = change.fullDocument.discordID;
-	const guild = await client.guilds.fetch(config.DISCORD_GUILD_ID);
-	const member = await guild.members.fetch(userId);
-	const role = guild.roles.cache.get(config.DISCORD_VERIFIED_ROLE_ID);
+	try {
+		const userId = change.fullDocument.discordID;
+		const guild = await client.guilds.fetch(config.DISCORD_GUILD_ID);
+		const member = await guild.members.fetch(userId);
+		const role = guild.roles.cache.get(config.DISCORD_VERIFIED_ROLE_ID);
 
-	await member.roles.add(role);
+		await member.roles.add(role);
+	} catch (err) {
+		console.error(`Failed to add role to user: ${err.message}`);
+	}
 });
 
 client.login(config.DISCORD_TOKEN);

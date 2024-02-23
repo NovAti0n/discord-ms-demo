@@ -1,6 +1,5 @@
 import cookieParser from "cookie-parser";
 import express from "express";
-import helmet from "helmet";
 
 import config from "./config.js";
 import * as discord from "./discord.js";
@@ -9,10 +8,7 @@ import * as mongo from "./db.js";
 
 const app = express();
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 app.use(cookieParser(config.COOKIE_SECRET)); // Used for signing cookies
-app.use(helmet());
 
 const client = mongo.connect(config.MONGO_URI);
 (async () => {
@@ -33,8 +29,7 @@ app.get("/verify", async (_, res) => {
 
 	res.cookie("clientState", state, {
 		maxAge: 1000 * 60 * 10,
-		signed: true,
-		sameSite: "strict"
+		signed: true
 	});
 	res.redirect(url);
 });
@@ -51,19 +46,18 @@ app.get("/discord-callback", async (req, res) => {
 
 		const token = await discord.getOAuthToken(code);
 		const userData = await discord.getUserData(token);
-		const { state, url } = microsoft.getOAuthUrl();
 
 		console.log(`Discord user ID is ${userData.user.id}`);
 
+		const { state, url } = microsoft.getOAuthUrl();
+
 		res.cookie("clientState", state, {
 			maxAge: 1000 * 60 * 10,
-			signed: true,
-			sameSite: "strict"
+			signed: true
 		});
 		res.cookie("discordUserID", userData.user.id, {
 			maxAge: 1000 * 60 * 10,
-			signed: true,
-			sameSite: "strict"
+			signed: true
 		});
 		res.redirect(url);
 	} catch (err) {
