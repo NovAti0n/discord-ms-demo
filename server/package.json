@@ -1,0 +1,20 @@
+{
+	"name": "discord-ms-demo",
+	"version": "1.0.0",
+	"description": "",
+	"main": "src/server.js",
+	"type": "module",
+	"scripts": {
+		"start": "node ."
+	},
+	"keywords": [],
+	"author": "NovAtion",
+	"license": "ISC",
+	"dependencies": {
+		"cookie-parser": "^1.4.6",
+		"dotenv": "^16.4.5",
+		"express": "^4.18.2",
+		"mongodb": "^6.3.0",
+		"undici": "^6.6.2"
+	}
+}
