@@ -43,8 +43,14 @@ app.get("/discord-callback", async (req, res) => {
 
 		console.log(`Discord user ID is ${userData.user.id}`);
 
-		res.cookie("clientState", state, { maxAge: 1000 * 60 * 10, signed: true });
-		res.cookie("discordUserID", userData.user.id, { maxAge: 1000 * 60 * 10, signed: true });
+		res.cookie("clientState", state, {
+			maxAge: 1000 * 60 * 10,
+			signed: true
+		});
+		res.cookie("discordUserID", userData.user.id, {
+			maxAge: 1000 * 60 * 10,
+			signed: true
+		});
 		res.redirect(url);
 	} catch (err) {
 		console.error(err);
@@ -69,7 +75,9 @@ app.get("/microsoft-callback", async (req, res) => {
 
 		console.log(`Microsoft user ID is ${userData.sub}`);
 
-		if (await mongo.isAlreadyRegistered(client, discordUserID, userData.sub)) {
+		if (
+			await mongo.isAlreadyRegistered(client, discordUserID, userData.sub)
+		) {
 			return res.send("You already have an account linked!");
 		}
 
@@ -86,4 +94,6 @@ app.get("/microsoft-callback", async (req, res) => {
 	}
 });
 
-app.listen(config.PORT, () => console.log(`App listening on http://localhost:${config.PORT}`));
+app.listen(config.PORT, () =>
+	console.log(`App listening on http://localhost:${config.PORT}`)
+);

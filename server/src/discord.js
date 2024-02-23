@@ -38,7 +38,10 @@ export async function getOAuthToken(code) {
 	if (response.ok) {
 		const data = await response.json();
 		return data;
-	} else throw new Error(`Unable to fetch Discord OAuth token: [${response.status}] ${response.statusText}`);
+	} else
+		throw new Error(
+			`Unable to fetch Discord OAuth token: [${response.status}] ${response.statusText}`
+		);
 }
 
 export async function getUserData(token) {
@@ -53,5 +56,8 @@ export async function getUserData(token) {
 	if (response.ok) {
 		const data = await response.json();
 		return data;
-	} else throw new Error(`Unable to fetch Discord user data: [${response.status}] ${response.statusText}`);
+	} else
+		throw new Error(
+			`Unable to fetch Discord user data: [${response.status}] ${response.statusText}`
+		);
 }

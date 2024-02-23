@@ -10,29 +10,6 @@ export function connect(uri) {
 	});
 }
 
-// TODO: Rewrite this function
-// export async function banUser(client, user) {
-// 	const users = client.db("auth").collection("auth");
-// 	const updateDoc = {
-// 		$set: {
-// 			isBanned: true
-// 		}
-// 	};
-
-// 	await users.updateMany({ discordUsers: { $in: [user] } }, updateDoc);
-// }
-
-// Note : you have to use a replicaSet to use changeStreams https://www.mongodb.com/docs/manual/tutorial/convert-standalone-to-replica-set/
-export function getChangeStream(client) {
-	const users = client.db("auth").collection("auth");
-
-	return users.watch();
-}
-
-export function addCallbackOnChange(client, callback) {
-	getChangeStream(client).on("change", callback);
-}
-
 export async function addUser(client, discordID, microsoftID) {
 	const users = client.db("auth").collection("auth");
 
