@@ -48,14 +48,9 @@ changeStream.on("change", async change => {
 	const userId = change.fullDocument.discordID;
 	const guild = await client.guilds.fetch(config.DISCORD_GUILD_ID);
 	const member = await guild.members.fetch(userId);
-
-	console.log(member);
-
 	const role = guild.roles.cache.get(config.DISCORD_VERIFIED_ROLE_ID);
 
 	await member.roles.add(role);
-
-	console.log(`Verification complete for user ${userId}!`);
 });
 
 client.login(config.DISCORD_TOKEN);
