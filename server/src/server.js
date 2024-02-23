@@ -4,7 +4,7 @@ import express from "express";
 import config from "./config.js";
 import * as discord from "./discord.js";
 import * as microsoft from "./microsoft.js";
-import * as mongo from "./db-methods.js";
+import * as mongo from "./db.js";
 
 const app = express();
 app.use(cookieParser(config.COOKIE_SECRET)); // Used for signing cookies
