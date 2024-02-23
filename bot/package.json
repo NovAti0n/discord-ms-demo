@@ -1,0 +1,19 @@
+{
+	"name": "bot",
+	"version": "1.0.0",
+	"description": "",
+	"main": "src/main.js",
+	"scripts": {
+		"start": "node src/deploy.js && node src/main.js",
+		"up": "node src/main.js",
+		"deploy": "node src/deploy.js"
+	},
+	"keywords": [],
+	"author": "NovAtion",
+	"license": "ISC",
+	"dependencies": {
+		"discord.js": "^14.14.1",
+		"dotenv": "^16.4.5",
+		"mongodb": "^6.3.0"
+	}
+}
