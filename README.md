@@ -42,3 +42,5 @@ cd bot
 pnpm i
 pnpm start
 ```
+
+Using the start script on the bot will result in a command redeployment. If you wish to skip this step (only if you know what you're doing), you can use the command `pnpm run up`.
