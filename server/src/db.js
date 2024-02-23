@@ -15,8 +15,7 @@ export async function addUser(client, discordID, microsoftID) {
 
 	await users.insertOne({
 		discordID,
-		microsoftID,
-		isBanned: false
+		microsoftID
 	});
 }
 

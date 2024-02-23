@@ -1,5 +1,6 @@
 import cookieParser from "cookie-parser";
 import express from "express";
+import helmet from "helmet";
 
 import config from "./config.js";
 import * as discord from "./discord.js";
@@ -7,12 +8,21 @@ import * as microsoft from "./microsoft.js";
 import * as mongo from "./db.js";
 
 const app = express();
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser(config.COOKIE_SECRET)); // Used for signing cookies
+app.use(helmet());
 
 const client = mongo.connect(config.MONGO_URI);
-await client.connect();
-
-console.log("Connected to MongoDB");
+(async () => {
+	try {
+		await client.connect();
+		console.log("Connected to MongoDB");
+	} catch (err) {
+		console.error(`Failed to connect to MongoDB: ${err.message}`);
+	}
+})();
 
 app.get("/", (_, res) => {
 	res.sendFile("index.html", { root: "./public" });
@@ -21,19 +31,21 @@ app.get("/", (_, res) => {
 app.get("/verify", async (_, res) => {
 	const { state, url } = discord.getOAuthUrl();
 
-	res.cookie("clientState", state, { maxAge: 1000 * 60 * 10, signed: true });
+	res.cookie("clientState", state, {
+		maxAge: 1000 * 60 * 10,
+		signed: true,
+		sameSite: "strict"
+	});
 	res.redirect(url);
 });
 
 app.get("/discord-callback", async (req, res) => {
 	try {
-		const code = req.query.code;
-		const discordState = req.query.state;
+		const { code, state: discordState } = req.query;
 		const { clientState } = req.signedCookies;
 
 		if (clientState != discordState) {
-			console.error("States don't match, aborting...");
-
+			console.error("Discord callback: states don't match");
 			return res.sendStatus(403);
 		}
 
@@ -45,11 +57,13 @@ app.get("/discord-callback", async (req, res) => {
 
 		res.cookie("clientState", state, {
 			maxAge: 1000 * 60 * 10,
-			signed: true
+			signed: true,
+			sameSite: "strict"
 		});
 		res.cookie("discordUserID", userData.user.id, {
 			maxAge: 1000 * 60 * 10,
-			signed: true
+			signed: true,
+			sameSite: "strict"
 		});
 		res.redirect(url);
 	} catch (err) {
@@ -60,13 +74,11 @@ app.get("/discord-callback", async (req, res) => {
 
 app.get("/microsoft-callback", async (req, res) => {
 	try {
-		const code = req.query.code;
-		const microsoftState = req.query.state;
+		const { code, state: microsoftState } = req.query;
 		const { clientState, discordUserID } = req.signedCookies;
 
 		if (clientState != microsoftState) {
-			console.error("States don't match, aborting...");
-
+			console.error("Microsoft callback: states don't match");
 			return res.sendStatus(403);
 		}
 
@@ -75,11 +87,13 @@ app.get("/microsoft-callback", async (req, res) => {
 
 		console.log(`Microsoft user ID is ${userData.sub}`);
 
-		if (
-			await mongo.isAlreadyRegistered(client, discordUserID, userData.sub)
-		) {
+		const isAlreadyRegistered = await mongo.isAlreadyRegistered(
+			client,
+			discordUserID,
+			userData.sub
+		);
+		if (isAlreadyRegistered)
 			return res.send("You already have an account linked!");
-		}
 
 		await mongo.addUser(client, discordUserID, userData.sub);
 
